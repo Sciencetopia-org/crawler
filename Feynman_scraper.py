@@ -1,4 +1,5 @@
 import requests
+import requests
 from bs4 import BeautifulSoup
 import csv
 
@@ -17,11 +18,18 @@ with open("feynman_lectures.csv", "w", newline='', encoding='utf-8') as csvfile:
         chapters = soup.find_all("div", class_="toc-chapter")
 
         for chapter in chapters:
-            chapter_number = chapter.find("span", class_="tag").text.strip()
-            chapter_title = chapter.find("a", class_="chapterlink").text.strip()
-            chapter_link = chapter.find("a", class_="chapterlink")["href"]
-            chapter_url = base_url + "/" + volume_link.split("_")[0][1:] + "/" + chapter_link
+            chapter_number = chapter.find("span", class_="tag").text
+            title = chapter.find("a", class_="chapterlink").text
+            title = title.split(".")[1].strip()
 
-            csv_writer.writerow([volume_link.split("_")[0][1:], chapter_number, chapter_title, chapter_url])
+            # 提取 chapter_number 中的数字部分
+            chapter_number_digits = "".join(filter(str.isdigit, chapter_number))
+
+            # 构建chapter_url
+            volume_prefix = volume_link.split("_")[0][1:]
+            chapter_url = base_url + "/" + volume_prefix + "_" + chapter_number_digits + ".html"
+
+            print(f"Volume: {volume_prefix}, Chapter Number: {chapter_number}, Title: {title}, URL: {chapter_url}")
+            csv_writer.writerow([volume_prefix, chapter_number, title, chapter_url])
 
 print("Done!")
